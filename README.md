@@ -1,0 +1,52 @@
+# Development Environment Variables
+VITE_APP_NAME=Resume Builder Pro
+VITE_APP_VERSION=1.0.0
+
+# API Configuration
+VITE_API_BASE_URL=http://localhost:5000/api/v1
+VITE_API_TIMEOUT=10000
+
+# Resume Builder Configuration
+VITE_MAX_WORK_EXPERIENCES=10
+VITE_MAX_EDUCATION_ENTRIES=5
+VITE_MAX_SKILLS=50
+VITE_MAX_SUMMARY_LENGTH=500
+
+# File Upload Configuration
+VITE_MAX_FILE_SIZE=5242880
+VITE_ALLOWED_FILE_TYPES=pdf,doc,docx
+
+# Feature Flags
+VITE_ENABLE_PDF_EXPORT=true
+VITE_ENABLE_TEMPLATE_SELECTION=true
+VITE_ENABLE_AUTO_SAVE=true
+VITE_AUTO_SAVE_INTERVAL=30000
+
+# Analytics (Optional)
+VITE_GOOGLE_ANALYTICS_ID=
+VITE_HOTJAR_ID=
+
+# Social Media Integration (Optional)
+VITE_LINKEDIN_CLIENT_ID=
+VITE_GITHUB_CLIENT_ID=
+
+# Email Service Configuration (Optional)
+VITE_EMAIL_SERVICE_URL=
+VITE_EMAIL_API_KEY=
+
+# Storage Configuration
+VITE_STORAGE_TYPE=localStorage
+VITE_CLOUD_STORAGE_BUCKET=
+
+# Security
+VITE_ENCRYPTION_KEY=your-encryption-key-here
+VITE_SESSION_TIMEOUT=3600000
+
+# UI Configuration
+VITE_DEFAULT_THEME=modern
+VITE_ENABLE_DARK_MODE=true
+VITE_DEFAULT_LANGUAGE=en
+
+# Development Tools
+VITE_ENABLE_DEBUG=true
+VITE_LOG_LEVEL=info
