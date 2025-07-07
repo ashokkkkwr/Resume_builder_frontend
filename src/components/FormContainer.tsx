@@ -1,110 +1,157 @@
-import React from 'react';
-import { useResume } from '../context/ResumeContext';
-import { Button } from './ui/Button';
-import { StepIndicator } from './StepIndicator';
-import { PersonalInfoStep } from './FormSteps/PersonalInfoStep';
-import { WorkExperienceStep } from './FormSteps/WorkExperienceStep';
-import { EducationStep } from './FormSteps/EducationStep';
-import { SkillsStep } from './FormSteps/SkillsStep';
-import { SummaryStep } from './FormSteps/SummaryStep';
-import { resumeService } from '../services/resumeService';
-import { validatePersonalInfo } from '../utils/validation';
-import { ChevronLeft, ChevronRight, Save, Download, CheckCircle } from 'lucide-react';
+"use client"
+
+import type React from "react"
+import { useResume } from "../context/ResumeContext"
+import { Button } from "./ui/Button"
+import { StepIndicator } from "./StepIndicator"
+import { PersonalInfoStep } from "./FormSteps/PersonalInfoStep"
+import { WorkExperienceStep } from "./FormSteps/WorkExperienceStep"
+import { EducationStep } from "./FormSteps/EducationStep"
+import { SkillsStep } from "./FormSteps/SkillsStep"
+import { SummaryStep } from "./FormSteps/SummaryStep"
+import { resumeService } from "../services/resumeService"
+import { validatePersonalInfo } from "../utils/validation"
+import { ChevronLeft, ChevronRight, Save, Download, CheckCircle } from "lucide-react"
 
 const steps = [
-  { component: PersonalInfoStep, label: 'Personal', icon: '👤' },
-  { component: WorkExperienceStep, label: 'Experience', icon: '💼' },
-  { component: EducationStep, label: 'Education', icon: '🎓' },
-  { component: SkillsStep, label: 'Skills', icon: '⚡' },
-  { component: SummaryStep, label: 'Summary', icon: '📝' }
-];
+  { component: PersonalInfoStep, label: "Personal", icon: "👤" },
+  { component: WorkExperienceStep, label: "Experience", icon: "💼" },
+  { component: EducationStep, label: "Education", icon: "🎓" },
+  { component: SkillsStep, label: "Skills", icon: "⚡" },
+  { component: SummaryStep, label: "Summary", icon: "📝" },
+]
 
 export const FormContainer: React.FC = () => {
-  const { 
-    currentStep, 
-    setCurrentStep, 
-    resumeData, 
-    isLoading, 
-    setIsLoading 
-  } = useResume();
+  const { currentStep, setCurrentStep, resumeData, isLoading, setIsLoading, isEditing, editingResumeId } = useResume()
 
-  const CurrentStepComponent = steps[currentStep].component;
+  const CurrentStepComponent = steps[currentStep].component
 
   const handleNext = () => {
     if (currentStep === 0) {
-      const errors = validatePersonalInfo(resumeData.personalInfo);
+      const errors = validatePersonalInfo(resumeData.personalInfo)
       if (Object.keys(errors).length > 0) {
-        alert('Please fill in all required fields in the Personal Information section.');
-        return;
+        alert("Please fill in all required fields in the Personal Information section.")
+        return
       }
     }
-    
+
     if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
+      setCurrentStep(currentStep + 1)
     }
-  };
+  }
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
+      setCurrentStep(currentStep - 1)
     }
-  };
+  }
 
   const handleSaveDraft = async () => {
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const result = await resumeService.saveDraft(resumeData);
-      alert(`Draft saved successfully! Resume ID: ${result.id}`);
+      const result = await resumeService.saveDraft(resumeData)
+      alert(`Draft saved successfully! Resume ID: ${result.id}`)
     } catch (error) {
-      alert('Failed to save draft. Please try again.');
+      alert("Failed to save draft. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleSaveCompleted = async () => {
-    console.log('xiro');
+    console.log("xiro")
     // Validate that all required sections are filled
-    const personalErrors = validatePersonalInfo(resumeData.personalInfo);
+    const personalErrors = validatePersonalInfo(resumeData.personalInfo)
     if (Object.keys(personalErrors).length > 0) {
-      alert('Please complete the Personal Information section before saving.');
-      setCurrentStep(0);
-      return;
+      alert("Please complete the Personal Information section before saving.")
+      setCurrentStep(0)
+      return
     }
 
     if (resumeData.workExperience.length === 0) {
-      alert('Please add at least one work experience before saving.');
-      setCurrentStep(1);
-      return;
+      alert("Please add at least one work experience before saving.")
+      setCurrentStep(1)
+      return
     }
 
-    if (!resumeData.summary.content.trim()) {
-      alert('Please add a professional summary before saving.');
-      setCurrentStep(4);
-      return;
+    if (!resumeData.summary || !resumeData.summary.content || !resumeData.summary.content.trim()) {
+      alert("Please add a professional summary before saving.")
+      setCurrentStep(4)
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      const result = await resumeService.saveResume(resumeData);
-      alert(`Resume saved successfully! Resume ID: ${result.id}`);
+      const result = await resumeService.saveResume(resumeData)
+      alert(`Resume saved successfully! Resume ID: ${result.id}`)
     } catch (error) {
-      alert('Failed to save resume. Please try again.');
+      alert("Failed to save resume. Please try again.")
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const isLastStep = currentStep === steps.length - 1;
-  const isFirstStep = currentStep === 0;
+  const isLastStep = currentStep === steps.length - 1
+  const isFirstStep = currentStep === 0
 
   // Check if resume is complete enough to save as completed
   const isResumeComplete = () => {
-    const personalErrors = validatePersonalInfo(resumeData.personalInfo);
-    return Object.keys(personalErrors).length === 0 && 
-           resumeData.workExperience.length > 0 && 
-           resumeData.summary.content.trim().length > 0;
-  };
+    const personalErrors = validatePersonalInfo(resumeData.personalInfo)
+    return (
+      Object.keys(personalErrors).length === 0 &&
+      resumeData.workExperience.length > 0 &&
+      resumeData.summary.content.trim().length > 0
+    )
+  }
+
+  // Add handleUpdateResume function
+  const handleUpdateResume = async () => {
+    if (!editingResumeId) return
+
+    // Validate that all required sections are filled
+    const personalErrors = validatePersonalInfo(resumeData.personalInfo)
+    if (Object.keys(personalErrors).length > 0) {
+      alert("Please complete the Personal Information section before updating.")
+      setCurrentStep(0)
+      return
+    }
+
+    if (resumeData.workExperience.length === 0) {
+      alert("Please add at least one work experience before updating.")
+      setCurrentStep(1)
+      return
+    }
+
+    if (!resumeData.summary || !resumeData.summary.content || !resumeData.summary.content.trim()) {
+      alert("Please add a professional summary before updating.")
+      setCurrentStep(4)
+      return
+    }
+
+    setIsLoading(true)
+    try {
+      const result = await resumeService.updateResume(editingResumeId, resumeData, "completed")
+      alert(`Resume updated successfully! Resume ID: ${result.id}`)
+    } catch (error) {
+      alert("Failed to update resume. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleUpdateDraft = async () => {
+    if (!editingResumeId) return
+
+    setIsLoading(true)
+    try {
+      const result = await resumeService.updateResume(editingResumeId, resumeData, "draft")
+      alert(`Draft updated successfully! Resume ID: ${result.id}`)
+    } catch (error) {
+      alert("Failed to update draft. Please try again.")
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div className="space-y-6">
@@ -113,8 +160,8 @@ export const FormContainer: React.FC = () => {
         <StepIndicator
           currentStep={currentStep}
           totalSteps={steps.length}
-          stepLabels={steps.map(step => step.label)}
-          stepIcons={steps.map(step => step.icon)}
+          stepLabels={steps.map((step) => step.label)}
+          stepIcons={steps.map((step) => step.icon)}
         />
       </div>
 
@@ -152,41 +199,36 @@ export const FormContainer: React.FC = () => {
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto order-1 sm:order-2">
               <Button
                 variant="outline"
-                onClick={handleSaveDraft}
+                onClick={isEditing ? handleUpdateDraft : handleSaveDraft}
                 disabled={isLoading}
-                className="w-full sm:w-auto"
+                className="w-full sm:w-auto bg-transparent"
               >
                 <Save size={16} />
-                <span>{isLoading ? 'Saving...' : 'Save Draft'}</span>
+                <span>{isLoading ? "Saving..." : isEditing ? "Update Draft" : "Save Draft"}</span>
               </Button>
 
-              
-                <Button
-                  onClick={handleSaveCompleted}
-                  disabled={isLoading}
-                  className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-                >
-                  <CheckCircle size={16} />
-                  <span>{isLoading ? 'Saving...' : 'Save Resume'}</span>
-                </Button>
-              
+              <Button
+                onClick={isEditing ? handleUpdateResume : handleSaveCompleted}
+                disabled={isLoading}
+                className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              >
+                <CheckCircle size={16} />
+                <span>{isLoading ? "Saving..." : isEditing ? "Update Resume" : "Save Resume"}</span>
+              </Button>
 
               {!isLastStep ? (
-                <Button
-                  onClick={handleNext}
-                  className="w-full sm:w-auto"
-                >
+                <Button onClick={handleNext} className="w-full sm:w-auto">
                   <span>Continue</span>
                   <ChevronRight size={16} />
                 </Button>
               ) : (
                 <Button
-                  onClick={handleSaveDraft}
+                  onClick={isEditing ? handleUpdateDraft : handleSaveDraft}
                   disabled={isLoading}
                   className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
                 >
                   <Download size={16} />
-                  <span>{isLoading ? 'Saving...' : 'Finish & Save'}</span>
+                  <span>{isLoading ? "Saving..." : isEditing ? "Update & Finish" : "Finish & Save"}</span>
                 </Button>
               )}
             </div>
@@ -194,5 +236,5 @@ export const FormContainer: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

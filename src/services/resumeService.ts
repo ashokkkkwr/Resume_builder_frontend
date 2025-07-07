@@ -176,13 +176,21 @@ export const resumeService = {
       return apiResponse.data
     } catch (error) {
       // For demo purposes, update in localStorage
-      const storageKey = status === "draft" ? "resume_drafts" : "saved_resumes"
-      const existing = JSON.parse(localStorage.getItem(storageKey) || "[]")
-      const index = existing.findIndex((r: SavedResume) => r.id === id)
+      const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
+      const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
 
-      if (index !== -1) {
-        existing[index] = {
-          ...existing[index],
+      // Find the resume in either drafts or completed
+      let foundInDrafts = false
+      let foundInCompleted = false
+      let updatedResume: SavedResume | null = null
+
+      const draftIndex = drafts.findIndex((r: SavedResume) => r.id === id)
+      const completedIndex = completed.findIndex((r: SavedResume) => r.id === id)
+
+      if (draftIndex !== -1) {
+        foundInDrafts = true
+        updatedResume = {
+          ...drafts[draftIndex],
           personalInfo: resumeData.personalInfo,
           workExperience: resumeData.workExperience,
           education: resumeData.education,
@@ -191,10 +199,46 @@ export const resumeService = {
           status,
           updatedAt: new Date().toISOString(),
         }
-        localStorage.setItem(storageKey, JSON.stringify(existing))
-        return existing[index]
+
+        if (status === "completed") {
+          // Move from drafts to completed
+          drafts.splice(draftIndex, 1)
+          completed.push(updatedResume)
+        } else {
+          // Update in drafts
+          drafts[draftIndex] = updatedResume
+        }
+      } else if (completedIndex !== -1) {
+        foundInCompleted = true
+        updatedResume = {
+          ...completed[completedIndex],
+          personalInfo: resumeData.personalInfo,
+          workExperience: resumeData.workExperience,
+          education: resumeData.education,
+          skills: resumeData.skills,
+          summary: resumeData.summary,
+          status,
+          updatedAt: new Date().toISOString(),
+        }
+
+        if (status === "draft") {
+          // Move from completed to drafts
+          completed.splice(completedIndex, 1)
+          drafts.push(updatedResume)
+        } else {
+          // Update in completed
+          completed[completedIndex] = updatedResume
+        }
       }
-      throw new Error("Resume not found")
+
+      if (!updatedResume) {
+        throw new Error("Resume not found")
+      }
+
+      localStorage.setItem("resume_drafts", JSON.stringify(drafts))
+      localStorage.setItem("saved_resumes", JSON.stringify(completed))
+
+      return updatedResume
     }
   },
 

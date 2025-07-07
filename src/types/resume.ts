@@ -51,7 +51,7 @@ export interface ResumeData {
   workExperience: WorkExperience[]
   education: Education[]
   skills: Skill[]
-  summary: Summary | null
+  summary: Summary
 }
 
 export interface FormErrors {

@@ -1,85 +1,84 @@
-import React from 'react';
-import { useResume } from '../context/ResumeContext';
-import { formatDate } from '../utils/validation';
-import { Mail, Phone, MapPin, Globe, Linkedin, Github, Download, Share2 } from 'lucide-react';
-import { Button } from './ui/Button';
-import { PDFService } from '../services/pdfService';
+"use client"
+
+import type React from "react"
+import { useResume } from "../context/ResumeContext"
+import { formatDate } from "../utils/validation"
+import { Mail, Phone, Globe, Linkedin, Github, Download, Share2 } from "lucide-react"
+import { Button } from "./ui/Button"
+import { PDFService } from "../services/pdfService"
 
 export const ResumePreview: React.FC = () => {
-  const { resumeData, isLoading, setIsLoading } = useResume();
-  const { personalInfo, workExperience, education, skills, summary } = resumeData;
+  const { resumeData, isLoading, setIsLoading } = useResume()
+  const { personalInfo, workExperience, education, skills, summary } = resumeData
 
-  const hasPersonalInfo = personalInfo.firstName || personalInfo.lastName;
-  const hasWorkExperience = workExperience.length > 0;
-  const hasEducation = education.length > 0;
-  const hasSkills = skills.length > 0;
-  const hasSummary = summary.content.trim().length > 0;
+  const hasPersonalInfo = personalInfo.firstName || personalInfo.lastName
+  const hasWorkExperience = workExperience.length > 0
+  const hasEducation = education.length > 0
+  const hasSkills = skills.length > 0
+  const hasSummary = summary && summary.content && summary.content.trim().length > 0
 
-  const groupedSkills = skills.reduce((acc, skill) => {
-    if (!acc[skill.category]) {
-      acc[skill.category] = [];
-    }
-    acc[skill.category].push(skill);
-    return acc;
-  }, {} as Record<string, typeof skills>);
+  const groupedSkills = skills.reduce(
+    (acc, skill) => {
+      if (!acc[skill.category]) {
+        acc[skill.category] = []
+      }
+      acc[skill.category].push(skill)
+      return acc
+    },
+    {} as Record<string, typeof skills>,
+  )
 
   const handleDownloadPDF = async () => {
     try {
-      setIsLoading(true);
-      await PDFService.generatePDF(resumeData, 'resume-preview');
+      setIsLoading(true)
+      await PDFService.generatePDF(resumeData, "resume-preview")
     } catch (error) {
-      alert('Failed to generate PDF. Please try again.');
-      console.error('PDF generation error:', error);
+      alert("Failed to generate PDF. Please try again.")
+      console.error("PDF generation error:", error)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleShare = async () => {
     if (navigator.share) {
       try {
-        const blob = await PDFService.generatePDFBlob(resumeData, 'resume-preview');
+        const blob = await PDFService.generatePDFBlob(resumeData, "resume-preview")
         const file = new File([blob], `${personalInfo.firstName}_${personalInfo.lastName}_Resume.pdf`, {
-          type: 'application/pdf'
-        });
-        
+          type: "application/pdf",
+        })
+
         await navigator.share({
           title: `${personalInfo.firstName} ${personalInfo.lastName} Resume`,
-          text: 'Check out my professional resume',
-          files: [file]
-        });
+          text: "Check out my professional resume",
+          files: [file],
+        })
       } catch (error) {
-        console.error('Error sharing:', error);
+        console.error("Error sharing:", error)
         // Fallback to download
-        handleDownloadPDF();
+        handleDownloadPDF()
       }
     } else {
       // Fallback for browsers that don't support Web Share API
-      handleDownloadPDF();
+      handleDownloadPDF()
     }
-  };
+  }
 
   return (
     <div className="space-y-4">
       {/* Preview Actions */}
       <div className="flex flex-col sm:flex-row gap-2">
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="flex-1"
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex-1 bg-transparent"
           onClick={handleDownloadPDF}
           disabled={isLoading}
         >
           <Download size={14} />
-          <span>{isLoading ? 'Generating...' : 'Download PDF'}</span>
+          <span>{isLoading ? "Generating..." : "Download PDF"}</span>
         </Button>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex-1"
-          onClick={handleShare}
-          disabled={isLoading}
-        >
+        <Button variant="ghost" size="sm" className="flex-1" onClick={handleShare} disabled={isLoading}>
           <Share2 size={14} />
           <span>Share</span>
         </Button>
@@ -92,13 +91,11 @@ export const ResumePreview: React.FC = () => {
           <div className="space-y-4">
             <div>
               <h1 className="text-3xl lg:text-4xl font-bold mb-2">
-                {hasPersonalInfo ? `${personalInfo.firstName} ${personalInfo.lastName}` : 'Your Name'}
+                {hasPersonalInfo ? `${personalInfo.firstName} ${personalInfo.lastName}` : "Your Name"}
               </h1>
-              {personalInfo.location && (
-                <p className="text-gray-300 text-lg">{personalInfo.location}</p>
-              )}
+              {personalInfo.location && <p className="text-gray-300 text-lg">{personalInfo.location}</p>}
             </div>
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
               {personalInfo.email && (
                 <div className="flex items-center space-x-2 text-gray-300">
@@ -141,15 +138,13 @@ export const ResumePreview: React.FC = () => {
               <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
                 Professional Summary
               </h2>
-              <p className="text-gray-700 leading-relaxed text-base">{summary.content}</p>
+              <p className="text-gray-700 leading-relaxed text-base">{summary?.content || ""}</p>
             </section>
           )}
 
           {hasWorkExperience && (
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
-                Work Experience
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">Work Experience</h2>
               <div className="space-y-6">
                 {workExperience.map((exp) => (
                   <div key={exp.id} className="relative pl-6 border-l-2 border-gray-200">
@@ -162,12 +157,10 @@ export const ResumePreview: React.FC = () => {
                           <p className="text-gray-600 text-sm">{exp.location}</p>
                         </div>
                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full mt-2 sm:mt-0 self-start">
-                          {formatDate(exp.startDate)} - {exp.current ? 'Present' : formatDate(exp.endDate)}
+                          {formatDate(exp.startDate)} - {exp.current ? "Present" : formatDate(exp.endDate)}
                         </span>
                       </div>
-                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">
-                        {exp.description}
-                      </p>
+                      <p className="text-gray-700 leading-relaxed whitespace-pre-line">{exp.description}</p>
                     </div>
                   </div>
                 ))}
@@ -177,23 +170,21 @@ export const ResumePreview: React.FC = () => {
 
           {hasEducation && (
             <section>
-              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">
-                Education
-              </h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4 pb-2 border-b-2 border-blue-500">Education</h2>
               <div className="space-y-4">
                 {education.map((edu) => (
                   <div key={edu.id} className="bg-gray-50 rounded-xl p-4">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900">{edu.degree} in {edu.field}</h3>
+                        <h3 className="text-lg font-semibold text-gray-900">
+                          {edu.degree} in {edu.field}
+                        </h3>
                         <p className="text-blue-600 font-medium">{edu.institution}</p>
                         <p className="text-gray-600 text-sm">{edu.location}</p>
-                        {edu.gpa && (
-                          <p className="text-sm text-gray-600 mt-1">GPA: {edu.gpa}</p>
-                        )}
+                        {edu.gpa && <p className="text-sm text-gray-600 mt-1">GPA: {edu.gpa}</p>}
                       </div>
                       <span className="text-sm text-gray-500 bg-white px-3 py-1 rounded-full mt-2 sm:mt-0 self-start">
-                        {formatDate(edu.startDate)} - {edu.current ? 'Present' : formatDate(edu.endDate)}
+                        {formatDate(edu.startDate)} - {edu.current ? "Present" : formatDate(edu.endDate)}
                       </span>
                     </div>
                   </div>
@@ -218,9 +209,7 @@ export const ResumePreview: React.FC = () => {
                           className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-sm"
                         >
                           {skill.name}
-                          <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">
-                            {skill.level}
-                          </span>
+                          <span className="ml-2 text-xs bg-white/20 px-2 py-0.5 rounded-full">{skill.level}</span>
                         </span>
                       ))}
                     </div>
@@ -242,5 +231,5 @@ export const ResumePreview: React.FC = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}

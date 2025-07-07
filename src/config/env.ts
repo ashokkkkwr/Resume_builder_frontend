@@ -1,32 +1,25 @@
-// Environment configuration helper
+
 export const env = {
-  // App Configuration
   APP_NAME: import.meta.env.VITE_APP_NAME || 'Resume Builder',
   APP_VERSION: import.meta.env.VITE_APP_VERSION || '1.0.0',
   
-  // API Configuration
   API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api/v1',
   API_TIMEOUT: parseInt(import.meta.env.VITE_API_TIMEOUT || '10000'),
   
-  // Resume Builder Limits
   MAX_WORK_EXPERIENCES: parseInt(import.meta.env.VITE_MAX_WORK_EXPERIENCES || '10'),
   MAX_EDUCATION_ENTRIES: parseInt(import.meta.env.VITE_MAX_EDUCATION_ENTRIES || '5'),
   MAX_SKILLS: parseInt(import.meta.env.VITE_MAX_SKILLS || '50'),
   MAX_SUMMARY_LENGTH: parseInt(import.meta.env.VITE_MAX_SUMMARY_LENGTH || '500'),
   
-  // File Upload Configuration
   MAX_FILE_SIZE: parseInt(import.meta.env.VITE_MAX_FILE_SIZE || '5242880'), // 5MB
   ALLOWED_FILE_TYPES: (import.meta.env.VITE_ALLOWED_FILE_TYPES || 'pdf,doc,docx').split(','),
   
-  // Feature Flags
   ENABLE_PDF_EXPORT: import.meta.env.VITE_ENABLE_PDF_EXPORT === 'true',
   ENABLE_TEMPLATE_SELECTION: import.meta.env.VITE_ENABLE_TEMPLATE_SELECTION === 'true',
   ENABLE_AUTO_SAVE: import.meta.env.VITE_ENABLE_AUTO_SAVE === 'true',
   AUTO_SAVE_INTERVAL: parseInt(import.meta.env.VITE_AUTO_SAVE_INTERVAL || '30000'),
   
-  // Analytics
-  GOOGLE_ANALYTICS_ID: import.meta.env.VITE_GOOGLE_ANALYTICS_ID,
-  HOTJAR_ID: import.meta.env.VITE_HOTJAR_ID,
+
   
   // Social Media Integration
   LINKEDIN_CLIENT_ID: import.meta.env.VITE_LINKEDIN_CLIENT_ID,
