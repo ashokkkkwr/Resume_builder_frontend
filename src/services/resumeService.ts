@@ -2,7 +2,6 @@ import type { ResumeData } from "../types/resume"
 import { env } from "../config/env"
 import { v4 as uuidv4 } from "uuid"
 
-// Updated interface to match API response
 export interface SavedResume {
   id: string
   title: string
@@ -10,7 +9,6 @@ export interface SavedResume {
   userId?: string | null
   createdAt: string
   updatedAt: string
-  // Resume data is directly on the object, not nested under 'data'
   personalInfo: {
     id?: string
     firstName: string
@@ -46,7 +44,6 @@ export interface ApiResponse<T> {
 
 const API_BASE_URL = env.API_BASE_URL
 
-// Create a fetch wrapper with timeout
 const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), env.API_TIMEOUT)
@@ -65,7 +62,6 @@ const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
 }
 
 export const resumeService = {
-  // Save draft resume
   async saveDraft(resumeData: ResumeData, title?: string): Promise<SavedResume> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes/draft`, {
@@ -87,7 +83,6 @@ export const resumeService = {
       const apiResponse: ApiResponse<SavedResume> = await response.json()
       return apiResponse.data
     } catch (error) {
-      // For demo purposes, simulate API success with localStorage
       const draft: SavedResume = {
         id: uuidv4(),
         title: title || `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName} Resume`,
@@ -100,16 +95,12 @@ export const resumeService = {
         skills: resumeData.skills,
         summary: resumeData.summary,
       }
-
-      // Save to localStorage for demo
       const existingDrafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       existingDrafts.push(draft)
       localStorage.setItem("resume_drafts", JSON.stringify(existingDrafts))
       return draft
     }
   },
-
-  // Save completed resume
   async saveResume(resumeData: ResumeData, title?: string): Promise<SavedResume> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes`, {
@@ -131,7 +122,6 @@ export const resumeService = {
       const apiResponse: ApiResponse<SavedResume> = await response.json()
       return apiResponse.data
     } catch (error) {
-      // For demo purposes, simulate API success with localStorage
       const savedResume: SavedResume = {
         id: uuidv4(),
         title: title || `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName} Resume`,
@@ -144,16 +134,12 @@ export const resumeService = {
         skills: resumeData.skills,
         summary: resumeData.summary,
       }
-
-      // Save to localStorage for demo
       const existingResumes = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       existingResumes.push(savedResume)
       localStorage.setItem("saved_resumes", JSON.stringify(existingResumes))
       return savedResume
     }
   },
-
-  // Update existing resume
   async updateResume(id: string, resumeData: ResumeData, status: "draft" | "completed"): Promise<SavedResume> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes/${id}`, {
@@ -175,11 +161,8 @@ export const resumeService = {
       const apiResponse: ApiResponse<SavedResume> = await response.json()
       return apiResponse.data
     } catch (error) {
-      // For demo purposes, update in localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
-
-      // Find the resume in either drafts or completed
       let foundInDrafts = false
       let foundInCompleted = false
       let updatedResume: SavedResume | null = null
@@ -201,11 +184,9 @@ export const resumeService = {
         }
 
         if (status === "completed") {
-          // Move from drafts to completed
           drafts.splice(draftIndex, 1)
           completed.push(updatedResume)
         } else {
-          // Update in drafts
           drafts[draftIndex] = updatedResume
         }
       } else if (completedIndex !== -1) {
@@ -222,11 +203,9 @@ export const resumeService = {
         }
 
         if (status === "draft") {
-          // Move from completed to drafts
           completed.splice(completedIndex, 1)
           drafts.push(updatedResume)
         } else {
-          // Update in completed
           completed[completedIndex] = updatedResume
         }
       }
@@ -241,8 +220,6 @@ export const resumeService = {
       return updatedResume
     }
   },
-
-  // Get all resumes
   async getResumes(): Promise<ResumeListResponse> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes`)
@@ -255,7 +232,6 @@ export const resumeService = {
       return apiResponse.data
     } catch (error) {
       console.error("API Error:", error)
-      // For demo purposes, get from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       const allResumes = [...drafts, ...completed].sort(
@@ -268,8 +244,6 @@ export const resumeService = {
       }
     }
   },
-
-  // Get single resume
   async getResume(id: string): Promise<SavedResume> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes/${id}`)
@@ -281,7 +255,6 @@ export const resumeService = {
       const apiResponse: ApiResponse<SavedResume> = await response.json()
       return apiResponse.data
     } catch (error) {
-      // For demo purposes, get from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       const allResumes = [...drafts, ...completed]
@@ -293,8 +266,6 @@ export const resumeService = {
       return resume
     }
   },
-
-  // Delete resume
   async deleteResume(id: string): Promise<void> {
     try {
       const response = await fetchWithTimeout(`${API_BASE_URL}/resume/resumes/${id}`, {
@@ -305,7 +276,6 @@ export const resumeService = {
         throw new Error("Failed to delete resume")
       }
     } catch (error) {
-      // For demo purposes, delete from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       const updatedDrafts = drafts.filter((r: SavedResume) => r.id !== id)

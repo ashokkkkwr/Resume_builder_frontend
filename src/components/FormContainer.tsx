@@ -11,7 +11,7 @@ import { SkillsStep } from "./FormSteps/SkillsStep"
 import { SummaryStep } from "./FormSteps/SummaryStep"
 import { resumeService } from "../services/resumeService"
 import { validatePersonalInfo } from "../utils/validation"
-import { ChevronLeft, ChevronRight, Save, Download, CheckCircle } from "lucide-react"
+import { ChevronLeft, ChevronRight, Save, Download, CheckCircle, Loader2 } from "lucide-react"
 
 const steps = [
   { component: PersonalInfoStep, label: "Personal", icon: "👤" },
@@ -59,8 +59,6 @@ export const FormContainer: React.FC = () => {
   }
 
   const handleSaveCompleted = async () => {
-    console.log("xiro")
-    // Validate that all required sections are filled
     const personalErrors = validatePersonalInfo(resumeData.personalInfo)
     if (Object.keys(personalErrors).length > 0) {
       alert("Please complete the Personal Information section before saving.")
@@ -91,24 +89,9 @@ export const FormContainer: React.FC = () => {
     }
   }
 
-  const isLastStep = currentStep === steps.length - 1
-  const isFirstStep = currentStep === 0
-
-  // Check if resume is complete enough to save as completed
-  const isResumeComplete = () => {
-    const personalErrors = validatePersonalInfo(resumeData.personalInfo)
-    return (
-      Object.keys(personalErrors).length === 0 &&
-      resumeData.workExperience.length > 0 &&
-      resumeData.summary.content.trim().length > 0
-    )
-  }
-
-  // Add handleUpdateResume function
   const handleUpdateResume = async () => {
     if (!editingResumeId) return
 
-    // Validate that all required sections are filled
     const personalErrors = validatePersonalInfo(resumeData.personalInfo)
     if (Object.keys(personalErrors).length > 0) {
       alert("Please complete the Personal Information section before updating.")
@@ -153,10 +136,13 @@ export const FormContainer: React.FC = () => {
     }
   }
 
+  const isLastStep = currentStep === steps.length - 1
+  const isFirstStep = currentStep === 0
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Progress Card */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl shadow-blue-500/5 p-6">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <StepIndicator
           currentStep={currentStep}
           totalSteps={steps.length}
@@ -166,16 +152,21 @@ export const FormContainer: React.FC = () => {
       </div>
 
       {/* Form Card */}
-      <div className="bg-white/70 backdrop-blur-sm rounded-2xl border border-white/20 shadow-xl shadow-blue-500/5 overflow-hidden">
-        <div className="p-6 lg:p-8">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="p-8">
           <div className="mb-8">
-            <div className="flex items-center space-x-3 mb-3">
-              <span className="text-2xl">{steps[currentStep].icon}</span>
-              <h2 className="text-2xl lg:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                {steps[currentStep].label}
-              </h2>
+            <div className="flex items-center space-x-4 mb-4">
+              <div className="w-12 h-12 bg-slate-100 rounded-xl flex items-center justify-center">
+                <span className="text-2xl">{steps[currentStep].icon}</span>
+              </div>
+              <div>
+                <h2 className="text-2xl font-bold text-slate-900">{steps[currentStep].label}</h2>
+                <p className="text-slate-600">
+                  Step {currentStep + 1} of {steps.length}
+                </p>
+              </div>
             </div>
-            <div className="w-16 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+            <div className="w-20 h-1 bg-slate-900 rounded-full"></div>
           </div>
 
           <div className="mb-8">
@@ -184,40 +175,43 @@ export const FormContainer: React.FC = () => {
         </div>
 
         {/* Navigation Footer */}
-        <div className="bg-gray-50/50 backdrop-blur-sm border-t border-gray-200/50 px-6 lg:px-8 py-4">
-          <div className="flex flex-col sm:flex-row justify-between items-center space-y-3 sm:space-y-0">
+        <div className="bg-slate-50 border-t border-slate-200 px-8 py-6">
+          <div className="flex flex-col sm:flex-row justify-between items-center space-y-4 sm:space-y-0">
             <Button
               variant="ghost"
               onClick={handlePrevious}
               disabled={isFirstStep}
-              className="w-full sm:w-auto order-2 sm:order-1"
+              className="w-full sm:w-auto order-2 sm:order-1 text-slate-600 hover:text-slate-900 hover:bg-slate-200"
             >
               <ChevronLeft size={16} />
               <span>Previous</span>
             </Button>
 
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto order-1 sm:order-2">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-3 w-full sm:w-auto order-1 sm:order-2">
               <Button
                 variant="outline"
                 onClick={isEditing ? handleUpdateDraft : handleSaveDraft}
                 disabled={isLoading}
-                className="w-full sm:w-auto bg-transparent"
+                className="w-full sm:w-auto border-slate-300 text-slate-700 hover:bg-slate-50 bg-transparent"
               >
-                <Save size={16} />
+                {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
                 <span>{isLoading ? "Saving..." : isEditing ? "Update Draft" : "Save Draft"}</span>
               </Button>
 
               <Button
                 onClick={isEditing ? handleUpdateResume : handleSaveCompleted}
                 disabled={isLoading}
-                className="w-full sm:w-auto bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
               >
-                <CheckCircle size={16} />
+                {isLoading ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                 <span>{isLoading ? "Saving..." : isEditing ? "Update Resume" : "Save Resume"}</span>
               </Button>
 
               {!isLastStep ? (
-                <Button onClick={handleNext} className="w-full sm:w-auto">
+                <Button
+                  onClick={handleNext}
+                  className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                >
                   <span>Continue</span>
                   <ChevronRight size={16} />
                 </Button>
@@ -225,9 +219,9 @@ export const FormContainer: React.FC = () => {
                 <Button
                   onClick={isEditing ? handleUpdateDraft : handleSaveDraft}
                   disabled={isLoading}
-                  className="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                  className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 >
-                  <Download size={16} />
+                  {isLoading ? <Loader2 size={16} className="animate-spin" /> : <Download size={16} />}
                   <span>{isLoading ? "Saving..." : isEditing ? "Update & Finish" : "Finish & Save"}</span>
                 </Button>
               )}

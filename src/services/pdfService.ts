@@ -9,8 +9,6 @@ export class PDFService {
       if (!element) {
         throw new Error('Resume preview element not found');
       }
-
-      // Create canvas from HTML element
       const canvas = await html2canvas(element, {
         scale: 2,
         useCORS: true,
@@ -32,8 +30,6 @@ export class PDFService {
       const imgY = 0;
 
       pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
-      
-      // Generate filename
       const fileName = `${resumeData.personalInfo.firstName}_${resumeData.personalInfo.lastName}_Resume.pdf`.replace(/\s+/g, '_');
       
       pdf.save(fileName);

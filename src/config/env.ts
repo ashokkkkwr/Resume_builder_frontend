@@ -19,42 +19,21 @@ export const env = {
   ENABLE_AUTO_SAVE: import.meta.env.VITE_ENABLE_AUTO_SAVE === 'true',
   AUTO_SAVE_INTERVAL: parseInt(import.meta.env.VITE_AUTO_SAVE_INTERVAL || '30000'),
   
-
-  
-  // Social Media Integration
-  LINKEDIN_CLIENT_ID: import.meta.env.VITE_LINKEDIN_CLIENT_ID,
-  GITHUB_CLIENT_ID: import.meta.env.VITE_GITHUB_CLIENT_ID,
-  
-  // Email Service
-  EMAIL_SERVICE_URL: import.meta.env.VITE_EMAIL_SERVICE_URL,
-  EMAIL_API_KEY: import.meta.env.VITE_EMAIL_API_KEY,
-  
-  // Storage
-  STORAGE_TYPE: import.meta.env.VITE_STORAGE_TYPE || 'localStorage',
-  CLOUD_STORAGE_BUCKET: import.meta.env.VITE_CLOUD_STORAGE_BUCKET,
-  
-  // Security
   ENCRYPTION_KEY: import.meta.env.VITE_ENCRYPTION_KEY,
   SESSION_TIMEOUT: parseInt(import.meta.env.VITE_SESSION_TIMEOUT || '3600000'),
   
-  // UI Configuration
   DEFAULT_THEME: import.meta.env.VITE_DEFAULT_THEME || 'modern',
   ENABLE_DARK_MODE: import.meta.env.VITE_ENABLE_DARK_MODE === 'true',
   DEFAULT_LANGUAGE: import.meta.env.VITE_DEFAULT_LANGUAGE || 'en',
   
-  // Development
   ENABLE_DEBUG: import.meta.env.VITE_ENABLE_DEBUG === 'true',
   LOG_LEVEL: import.meta.env.VITE_LOG_LEVEL || 'info',
   
-  // Environment
   IS_DEVELOPMENT: import.meta.env.DEV,
   IS_PRODUCTION: import.meta.env.PROD,
 } as const;
-
-// Type-safe environment configuration
 export type EnvConfig = typeof env;
 
-// Validation function to ensure required environment variables are set
 export const validateEnv = () => {
   const requiredVars = [
     'VITE_API_BASE_URL',
@@ -68,8 +47,6 @@ export const validateEnv = () => {
   
   return missingVars.length === 0;
 };
-
-// Initialize environment validation
 if (env.IS_DEVELOPMENT) {
   validateEnv();
 }

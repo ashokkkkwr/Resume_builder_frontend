@@ -6,7 +6,6 @@ const draftId = uuidv4();
 const API_BASE_URL = env.API_BASE_URL;
 const API_TIMEOUT = env.API_TIMEOUT;
 
-// Create a fetch wrapper with timeout
 const fetchWithTimeout = async (url: string, options: RequestInit = {}) => {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), API_TIMEOUT);
@@ -41,7 +40,6 @@ export const resumeAPI = {
 
       return await response.json();
     } catch (error) {
-      // For demo purposes, simulate API success
       if (env.ENABLE_DEBUG) {
         console.log('Resume data to save:', resumeData);
       }
@@ -68,7 +66,6 @@ export const resumeAPI = {
 
       return await response.json();
     } catch (error) {
-      // For demo purposes, simulate API success
       if (env.ENABLE_DEBUG) {
         console.log('Resume data to update:', resumeData);
       }

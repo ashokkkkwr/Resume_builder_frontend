@@ -60,7 +60,6 @@ export const ResumeProvider: React.FC<ResumeProviderProps> = ({ children, initia
   const [isLoading, setIsLoading] = useState(false)
   const isEditing = !!editingResumeId
 
-  // Update resume data when initialData changes (for editing existing resumes)
   useEffect(() => {
     if (initialData) {
       setResumeData({
@@ -91,8 +90,6 @@ export const ResumeProvider: React.FC<ResumeProviderProps> = ({ children, initia
   const updateSummary = (summary: Summary) => {
     setResumeData((prev) => ({ ...prev, summary: summary }))
   }
-
-  // Add isEditing and editingResumeId to the context value
   return (
     <ResumeContext.Provider
       value={{
