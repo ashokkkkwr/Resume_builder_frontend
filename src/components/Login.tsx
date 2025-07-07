@@ -48,12 +48,10 @@ const LoginForm = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
           <p className="text-gray-600">Sign in to build your perfect resume</p>
         </div>
-
-        {/* Form Container */}
         <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
           <div className="p-8">
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              {/* Email/Username Field */}
+         
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Mail className="w-4 h-4" />
@@ -77,8 +75,6 @@ const LoginForm = () => {
                   </p>
                 )}
               </div>
-
-              {/* Password Field */}
               <div className="space-y-2">
                 <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
                   <Lock className="w-4 h-4" />
@@ -113,15 +109,11 @@ const LoginForm = () => {
                   </p>
                 )}
               </div>
-
-              {/* Error Message */}
               {error && (
                 <div className="bg-red-50 border border-red-200 rounded-xl p-4 animate-in slide-in-from-top-1 duration-200">
                   <p className="text-red-600 text-sm font-medium">{error}</p>
                 </div>
               )}
-
-              {/* Submit Button */}
               <button
                 type="submit"
                 disabled={isSubmitting}
@@ -141,8 +133,6 @@ const LoginForm = () => {
               </button>
             </form>
           </div>
-
-          {/* Footer */}
           <div className="bg-gray-50 px-8 py-6 border-t border-gray-100">
             <div className="flex items-center justify-between text-sm">
               <button className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
@@ -157,8 +147,6 @@ const LoginForm = () => {
             </div>
           </div>
         </div>
-
-        {/* Trust Indicators */}
         <div className="mt-8 text-center">
           <div className="flex items-center justify-center gap-6 text-xs text-gray-500">
             <div className="flex items-center gap-1">
