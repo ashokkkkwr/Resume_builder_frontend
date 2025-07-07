@@ -1,84 +1,79 @@
-import React, { useState, useEffect } from 'react';
-import { resumeService, SavedResume } from '../services/resumeService';
-import { Button } from './ui/Button';
-import { useResume } from '../context/ResumeContext';
-import { 
-  Plus, 
-  FileText, 
-  Edit3, 
-  Trash2, 
-  Download, 
-  Calendar,
-  CheckCircle,
-  Clock,
-  Search,
-  Filter
-} from 'lucide-react';
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { resumeService, type SavedResume } from "../services/resumeService"
+import { Button } from "./ui/Button"
+import { useResume } from "../context/ResumeContext"
+import { Plus, FileText, Edit3, Trash2, Calendar, CheckCircle, Clock, Search, Filter } from "lucide-react"
 
 interface DashboardProps {
-  onCreateNew: () => void;
-  onEditResume: (resume: SavedResume) => void;
+  onCreateNew: () => void
+  onEditResume: (resume: SavedResume) => void
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ onCreateNew, onEditResume }) => {
-  const [resumes, setResumes] = useState<SavedResume[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'draft' | 'completed'>('all');
-  const { setIsLoading } = useResume();
+  const [resumes, setResumes] = useState<SavedResume[]>([])
+  const [loading, setLoading] = useState(true)
+  const [searchTerm, setSearchTerm] = useState("")
+  const [filterStatus, setFilterStatus] = useState<"all" | "draft" | "completed">("all")
+  const { setIsLoading } = useResume()
 
   useEffect(() => {
-    loadResumes();
-  }, []);
+    loadResumes()
+  }, [])
 
   const loadResumes = async () => {
     try {
-      console.log('ya chai aayo')
-      setLoading(true);
-      const response = await resumeService.getResumes();
-      console.log(response)
-      //@ts-ignore
-      console.log(response.data.resumes)
-      //@ts-ignore
-setResumes(response.data.resumes ?? []);
+      setLoading(true)
+      const response = await resumeService.getResumes()
+      console.log("API Response:", response)
+      setResumes(response.resumes ?? [])
     } catch (error) {
-      console.error('Failed to load resumes:', error);
+      console.error("Failed to load resumes:", error)
+      setResumes([])
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this resume?')) {
+    if (window.confirm("Are you sure you want to delete this resume?")) {
       try {
-        setIsLoading(true);
-        await resumeService.deleteResume(id);
-        await loadResumes();
+        setIsLoading(true)
+        await resumeService.deleteResume(id)
+        await loadResumes()
       } catch (error) {
-        alert('Failed to delete resume. Please try again.');
+        alert("Failed to delete resume. Please try again.")
       } finally {
-        setIsLoading(false);
+        setIsLoading(false)
       }
     }
-  };
+  }
 
-  const filteredResumes = resumes.filter(resume => {
-    const matchesSearch = resume.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resume.data.personalInfo.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         resume.data.personalInfo.lastName.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filterStatus === 'all' || resume.status === filterStatus;
-    
-    return matchesSearch && matchesFilter;
-  });
+  const filteredResumes = resumes.filter((resume) => {
+    // Safe access to personalInfo
+    const firstName = resume.personalInfo?.firstName || ""
+    const lastName = resume.personalInfo?.lastName || ""
+    const title = resume.title || ""
+
+    const matchesSearch =
+      title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      lastName.toLowerCase().includes(searchTerm.toLowerCase())
+
+    const matchesFilter = filterStatus === "all" || resume.status === filterStatus
+
+    return matchesSearch && matchesFilter
+  })
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+    })
+  }
 
   if (loading) {
     return (
@@ -88,7 +83,7 @@ setResumes(response.data.resumes ?? []);
           <p className="text-gray-600">Loading your resumes...</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
@@ -152,15 +147,14 @@ setResumes(response.data.resumes ?? []);
               <FileText size={32} className="text-white" />
             </div>
             <h3 className="text-2xl font-bold text-gray-900 mb-4">
-              {searchTerm || filterStatus !== 'all' ? 'No resumes found' : 'No resumes yet'}
+              {searchTerm || filterStatus !== "all" ? "No resumes found" : "No resumes yet"}
             </h3>
             <p className="text-gray-600 mb-8 max-w-md mx-auto">
-              {searchTerm || filterStatus !== 'all' 
-                ? 'Try adjusting your search or filter criteria.'
-                : 'Create your first professional resume to get started on your career journey.'
-              }
+              {searchTerm || filterStatus !== "all"
+                ? "Try adjusting your search or filter criteria."
+                : "Create your first professional resume to get started on your career journey."}
             </p>
-            {(!searchTerm && filterStatus === 'all') && (
+            {!searchTerm && filterStatus === "all" && (
               <Button onClick={onCreateNew} size="lg" className="px-8 py-3">
                 <Plus size={20} />
                 <span>Create Your First Resume</span>
@@ -177,49 +171,31 @@ setResumes(response.data.resumes ?? []);
                 <div className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                        {resume.title}
-                      </h3>
+                      <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">{resume.title}</h3>
                       <p className="text-gray-600 text-sm">
-                        {resume.data.personalInfo.firstName} {resume.data.personalInfo.lastName}
+                        {resume.personalInfo?.firstName || "Unknown"} {resume.personalInfo?.lastName || "User"}
                       </p>
                     </div>
-                    <div className={`
+                    <div
+                      className={`
                       px-3 py-1 rounded-full text-xs font-medium flex items-center space-x-1
-                      ${resume.status === 'completed' 
-                        ? 'bg-green-100 text-green-700' 
-                        : 'bg-yellow-100 text-yellow-700'
-                      }
-                    `}>
-                      {resume.status === 'completed' ? (
-                        <CheckCircle size={12} />
-                      ) : (
-                        <Clock size={12} />
-                      )}
+                      ${resume.status === "completed" ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}
+                    `}
+                    >
+                      {resume.status === "completed" ? <CheckCircle size={12} /> : <Clock size={12} />}
                       <span className="capitalize">{resume.status}</span>
                     </div>
                   </div>
-
                   <div className="flex items-center text-xs text-gray-500 mb-4">
                     <Calendar size={12} className="mr-1" />
                     <span>Updated {formatDate(resume.updatedAt)}</span>
                   </div>
-
                   <div className="flex space-x-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => onEditResume(resume)}
-                      className="flex-1"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => onEditResume(resume)} className="flex-1">
                       <Edit3 size={14} />
                       <span>Edit</span>
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDelete(resume.id)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(resume.id)}>
                       <Trash2 size={14} />
                     </Button>
                   </div>
@@ -240,13 +216,13 @@ setResumes(response.data.resumes ?? []);
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-yellow-600">
-                  {resumes.filter(r => r.status === 'draft').length}
+                  {resumes.filter((r) => r.status === "draft").length}
                 </div>
                 <div className="text-sm text-gray-600">Drafts</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-green-600">
-                  {resumes.filter(r => r.status === 'completed').length}
+                  {resumes.filter((r) => r.status === "completed").length}
                 </div>
                 <div className="text-sm text-gray-600">Completed</div>
               </div>
@@ -255,5 +231,5 @@ setResumes(response.data.resumes ?? []);
         )}
       </div>
     </div>
-  );
-};
+  )
+}

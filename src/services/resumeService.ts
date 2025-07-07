@@ -2,18 +2,46 @@ import type { ResumeData } from "../types/resume"
 import { env } from "../config/env"
 import { v4 as uuidv4 } from "uuid"
 
+// Updated interface to match API response
 export interface SavedResume {
   id: string
   title: string
-  data: ResumeData
   status: "draft" | "completed"
+  userId?: string | null
   createdAt: string
   updatedAt: string
+  // Resume data is directly on the object, not nested under 'data'
+  personalInfo: {
+    id?: string
+    firstName: string
+    lastName: string
+    email: string
+    phone: string
+    location: string
+    website?: string
+    linkedin?: string
+    github?: string
+    createdAt?: string
+    updatedAt?: string
+  }
+  workExperience: any[]
+  education: any[]
+  skills: any[]
+  summary: any
 }
 
 export interface ResumeListResponse {
   resumes: SavedResume[]
   total: number
+  page?: number
+  limit?: number
+  totalPages?: number
+}
+
+export interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
 }
 
 const API_BASE_URL = env.API_BASE_URL
@@ -56,23 +84,27 @@ export const resumeService = {
         throw new Error("Failed to save draft")
       }
 
-      return await response.json()
+      const apiResponse: ApiResponse<SavedResume> = await response.json()
+      return apiResponse.data
     } catch (error) {
       // For demo purposes, simulate API success with localStorage
       const draft: SavedResume = {
         id: uuidv4(),
         title: title || `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName} Resume`,
-        data: resumeData,
         status: "draft",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        personalInfo: resumeData.personalInfo,
+        workExperience: resumeData.workExperience,
+        education: resumeData.education,
+        skills: resumeData.skills,
+        summary: resumeData.summary,
       }
 
       // Save to localStorage for demo
       const existingDrafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       existingDrafts.push(draft)
       localStorage.setItem("resume_drafts", JSON.stringify(existingDrafts))
-
       return draft
     }
   },
@@ -96,23 +128,27 @@ export const resumeService = {
         throw new Error("Failed to save resume")
       }
 
-      return await response.json()
+      const apiResponse: ApiResponse<SavedResume> = await response.json()
+      return apiResponse.data
     } catch (error) {
       // For demo purposes, simulate API success with localStorage
       const savedResume: SavedResume = {
         id: uuidv4(),
         title: title || `${resumeData.personalInfo.firstName} ${resumeData.personalInfo.lastName} Resume`,
-        data: resumeData,
         status: "completed",
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
+        personalInfo: resumeData.personalInfo,
+        workExperience: resumeData.workExperience,
+        education: resumeData.education,
+        skills: resumeData.skills,
+        summary: resumeData.summary,
       }
 
       // Save to localStorage for demo
       const existingResumes = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       existingResumes.push(savedResume)
       localStorage.setItem("saved_resumes", JSON.stringify(existingResumes))
-
       return savedResume
     }
   },
@@ -136,7 +172,8 @@ export const resumeService = {
         throw new Error("Failed to update resume")
       }
 
-      return await response.json()
+      const apiResponse: ApiResponse<SavedResume> = await response.json()
+      return apiResponse.data
     } catch (error) {
       // For demo purposes, update in localStorage
       const storageKey = status === "draft" ? "resume_drafts" : "saved_resumes"
@@ -146,14 +183,17 @@ export const resumeService = {
       if (index !== -1) {
         existing[index] = {
           ...existing[index],
-          data: resumeData,
+          personalInfo: resumeData.personalInfo,
+          workExperience: resumeData.workExperience,
+          education: resumeData.education,
+          skills: resumeData.skills,
+          summary: resumeData.summary,
           status,
           updatedAt: new Date().toISOString(),
         }
         localStorage.setItem(storageKey, JSON.stringify(existing))
         return existing[index]
       }
-
       throw new Error("Resume not found")
     }
   },
@@ -167,8 +207,10 @@ export const resumeService = {
         throw new Error("Failed to fetch resumes")
       }
 
-      return await response.json()
+      const apiResponse: ApiResponse<ResumeListResponse> = await response.json()
+      return apiResponse.data
     } catch (error) {
+      console.error("API Error:", error)
       // For demo purposes, get from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
@@ -192,18 +234,18 @@ export const resumeService = {
         throw new Error("Failed to fetch resume")
       }
 
-      return await response.json()
+      const apiResponse: ApiResponse<SavedResume> = await response.json()
+      return apiResponse.data
     } catch (error) {
       // For demo purposes, get from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
       const allResumes = [...drafts, ...completed]
-
       const resume = allResumes.find((r: SavedResume) => r.id === id)
+
       if (!resume) {
         throw new Error("Resume not found")
       }
-
       return resume
     }
   },
@@ -222,7 +264,6 @@ export const resumeService = {
       // For demo purposes, delete from localStorage
       const drafts = JSON.parse(localStorage.getItem("resume_drafts") || "[]")
       const completed = JSON.parse(localStorage.getItem("saved_resumes") || "[]")
-
       const updatedDrafts = drafts.filter((r: SavedResume) => r.id !== id)
       const updatedCompleted = completed.filter((r: SavedResume) => r.id !== id)
 
